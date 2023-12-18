@@ -132,11 +132,13 @@ async function fetchDataByPrice(minPrice, maxPrice, category) {
     const collection = db.collection("product"); // Access collection in database
 
     const query = { 
+      'category': { $eq: category },
       'product.price': { $gte: minPrice, $lte: maxPrice },
-      'category': {$eq: category}
+      
     }; // Query data by provided criteria
+    console.log(query)
     const result = await collection.find(query).toArray(); // Return all necessary results
-
+    console.log(result)
     return result;
   } catch (error) {
     console.error("Error fetching:", error);
@@ -248,6 +250,7 @@ app.get('/sortByPriceAndCategory', async(req, res) => {
   const minPrice = req.query.minPrice;
   const maxPrice = req.query.maxPrice;
   const category = req.query.category;
+
   try {
     const products = await fetchDataByPrice(minPrice, maxPrice, category);
     console.log('Fetches by category PC ' + products)
