@@ -247,8 +247,8 @@ app.get('/tvs', async(req, res) => {
 //GET ALL PRODUCTS FILTERED BY CERTAIN MIN AND MAX PRICE
 
 app.get('/sortByPriceAndCategory', async(req, res) => {
-  const minPrice = parseInt(req.query.minPrice);
-  const maxPrice = parseInt(req.query.maxPrice);
+  const minPrice = parseFloat(req.query.minPrice);
+  const maxPrice = parseFloat(req.query.maxPrice);
   const category = req.query.category;
 
   
