@@ -237,7 +237,7 @@ app.get('/tvs', async(req, res) => {
   const category = 'TV';
   try {
     const products = await fetchTVData(category);
-    console.log('Fetches by category PC ' + products)
+    
     res.json(products);
   } catch (err) {
     console.error("error fetching desktop");
@@ -247,13 +247,14 @@ app.get('/tvs', async(req, res) => {
 //GET ALL PRODUCTS FILTERED BY CERTAIN MIN AND MAX PRICE
 
 app.get('/sortByPriceAndCategory', async(req, res) => {
-  const minPrice = req.query.minPrice;
-  const maxPrice = req.query.maxPrice;
+  const minPrice = parseInt(req.query.minPrice);
+  const maxPrice = parseInt(req.query.maxPrice);
   const category = req.query.category;
 
+  
   try {
     const products = await fetchDataByPrice(minPrice, maxPrice, category);
-    console.log('Fetches by category PC ' + products)
+    
     res.json(products);
   } catch (err) {
     console.error("error fetching desktop");
@@ -265,8 +266,7 @@ app.get('/bycategory', async (req, res) => {
     const category = req.query.category; // Brand value
     const brand = req.query.brand; // Type value
     const products = await fetchAllDataByCategoryAndBrand(category, brand);
-    console.log('Fetches by category and type:', products);
-    console.log(category + brand)
+   
     res.json(products);
   } catch (err) {
     console.error("Error fetching by category and type", err);
