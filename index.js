@@ -124,14 +124,17 @@ async function fetchTVData(category) {
 }
 
 //FETCH ALL DATA BY CERTAIN MIN AND MAX PRICE's
-async function fetchAllDataByPrice(minPrice, maxPrice) {
+async function fetchDataByPrice(minPrice, maxPrice, category) {
  
   try {
 
     const db = client.db("products"); // Access database
     const collection = db.collection("product"); // Access collection in database
 
-    const query = { 'product.price': { $gte: minPrice, $lte: maxPrice } }; // Query data by provided criteria
+    const query = { 
+      'product.price': { $gte: minPrice, $lte: maxPrice },
+      'category': {$eq: category}
+    }; // Query data by provided criteria
     const result = await collection.find(query).toArray(); // Return all necessary results
 
     return result;
@@ -241,11 +244,12 @@ app.get('/tvs', async(req, res) => {
 
 //GET ALL PRODUCTS FILTERED BY CERTAIN MIN AND MAX PRICE
 
-app.get('/allProductsByPrice', async(req, res) => {
-  const minPrice = 300;
-  const maxPrice = 1000;
+app.get('/sortByPriceAndCategory', async(req, res) => {
+  const minPrice = req.query.minPrice;
+  const maxPrice = req.query.maxPrice;
+  const category = req.query.category;
   try {
-    const products = await fetchAllDataByPrice(minPrice, maxPrice);
+    const products = await fetchDataByPrice(minPrice, maxPrice, category);
     console.log('Fetches by category PC ' + products)
     res.json(products);
   } catch (err) {
@@ -274,3 +278,5 @@ app.get('/bycategory', async (req, res) => {
 app.listen(process.env.PORT, () => {
   console.log('running on port 3001');
 });
+
+
