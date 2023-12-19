@@ -167,6 +167,36 @@ async function fetchAllDataByCategoryAndBrand(category, brand) {
   } 
 }
 
+async function fetchLowestPriceProduct(category) {
+  try {
+    const db = client.db("products");
+    const collection = db.collection("product");
+
+    const query = { 'category': category };
+    const result = await collection.find(query).sort({ 'product.price': 1 }).toArray();
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching:", error);
+    return [];
+  }
+}
+
+async function fetchHighestPriceProduct(category) {
+  try {
+    const db = client.db("products");
+    const collection = db.collection("product");
+
+    const query = { 'category': category };
+    const result = await collection.find(query).sort({ 'product.price': -1 }).toArray();
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching:", error);
+    return [];
+  }
+}
+
 
 //MAIN ASYNC FUNCTION WHICH AWAITS AND CALLS FUNCTION THAT CONNECTS TO MONGODB
 async function main() {
@@ -251,7 +281,7 @@ app.get('/sortByPriceAndCategory', async(req, res) => {
   const maxPrice = parseFloat(req.query.maxPrice);
   const category = req.query.category;
 
-  
+  console.log(minPrice)
   try {
     const products = await fetchDataByPrice(minPrice, maxPrice, category);
     
@@ -274,7 +304,27 @@ app.get('/bycategory', async (req, res) => {
   }
 });
 
+app.get('/products/lowest-price', async (req, res) => {
+  const category = req.query.category;
+  try {
+    const products = await fetchLowestPriceProduct(category);
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching lowest price product:", err);
+    res.status(500).json({ error: 'Error fetching lowest price product' });
+  }
+});
 
+app.get('/products/highest-price', async (req, res) => {
+  const category = req.query.category;
+  try {
+    const products = await fetchHighestPriceProduct(category);
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching lowest price product:", err);
+    res.status(500).json({ error: 'Error fetching lowest price product' });
+  }
+});
 
 
 // NODE SERVER APP LISTENING ON CUSTOM PORT 
