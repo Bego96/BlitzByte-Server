@@ -146,6 +146,28 @@ async function fetchDataByPrice(minPrice, maxPrice, category) {
   } 
 }
 
+async function fetchAllDataByPrice(minPrice, maxPrice) {
+ 
+  try {
+
+    const db = client.db("products"); // Access database
+    const collection = db.collection("product"); // Access collection in database
+
+    const query = { 
+      
+      'product.price': { $gte: minPrice, $lte: maxPrice },
+      
+    }; // Query data by provided criteria
+    console.log(query)
+    const result = await collection.find(query).toArray(); // Return all necessary results
+    console.log(result)
+    return result;
+  } catch (error) {
+    console.error("Error fetching:", error);
+    return [];
+  } 
+}
+
 // FETCH ALL DATA BY CERTAIN CATEGORY 
 async function fetchAllDataByCategoryAndBrand(category, brand) {
   try {
@@ -156,6 +178,25 @@ async function fetchAllDataByCategoryAndBrand(category, brand) {
     const query = {
       'category': { $eq: category },
       'product.brand': { $eq: brand }
+    };
+
+    const result = await collection.find(query).toArray();
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching:", error);
+    return [];
+  } 
+}
+
+async function fetchAllDataByCategory(category, brand) {
+  try {
+    const db = client.db("products");
+    const collection = db.collection("product");
+
+    // Use $eq for exact match and $and to combine multiple conditions
+    const query = {
+      'product.type': { $eq: category },
     };
 
     const result = await collection.find(query).toArray();
@@ -189,6 +230,34 @@ async function fetchHighestPriceProduct(category) {
 
     const query = { 'category': category };
     const result = await collection.find(query).sort({ 'product.price': -1 }).toArray();
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching:", error);
+    return [];
+  }
+}
+
+async function fetchAllHighestPriceProduct() {
+  try {
+    const db = client.db("products");
+    const collection = db.collection("product");
+
+    const result = await collection.find().sort({ 'product.price': -1 }).toArray();
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching:", error);
+    return [];
+  }
+}
+
+async function fetchAllLowestPriceProduct() {
+  try {
+    const db = client.db("products");
+    const collection = db.collection("product");
+
+    const result = await collection.find().sort({ 'product.price': 1 }).toArray();
 
     return result;
   } catch (error) {
@@ -326,10 +395,56 @@ app.get('/products/highest-price', async (req, res) => {
   }
 });
 
+app.get('/products/all/highest-price', async (req, res) => {
+  
+  try {
+    const products = await fetchAllHighestPriceProduct();
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching lowest price product:", err);
+    res.status(500).json({ error: 'Error fetching lowest price product' });
+  }
+});
+
+app.get('/products/all/lowest-price', async (req, res) => {
+  
+  try {
+    const products = await fetchAllLowestPriceProduct();
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching lowest price product:", err);
+    res.status(500).json({ error: 'Error fetching lowest price product' });
+  }
+});
+
+app.get('/sortAllProductsByPrice', async(req, res) => {
+  const minPrice = parseFloat(req.query.minPrice);
+  const maxPrice = parseFloat(req.query.maxPrice);
+  
+  console.log(minPrice)
+  try {
+    const products = await fetchAllDataByPrice(minPrice, maxPrice);
+    
+    res.json(products);
+  } catch (err) {
+    console.error("error fetching desktop");
+  }
+})
+
+app.get('/allProductsByCategory', async (req, res) => {
+  try {
+    const category = req.query.category; // Brand value
+    const products = await fetchAllDataByCategory(category);
+   
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching by category and type", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 // NODE SERVER APP LISTENING ON CUSTOM PORT 
 app.listen(process.env.PORT, () => {
   console.log('running on port 3001');
 });
-
-
